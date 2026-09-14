@@ -1,0 +1,41 @@
+# =========================
+# Build stage
+# =========================
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+
+WORKDIR /src
+
+# Copy solution and project files
+COPY FootballRanking.sln ./
+COPY FootballRanking.API/FootballRanking.API.csproj FootballRanking.API/
+COPY FootballRanking.Core/FootballRanking.Core.csproj FootballRanking.Core/
+COPY FootballRanking.Infrastructure/FootballRanking.Infrastructure.csproj FootballRanking.Infrastructure/
+
+# Restore dependencies
+RUN dotnet restore FootballRanking.API/FootballRanking.API.csproj
+
+# Copy source code
+COPY FootballRanking.API/ FootballRanking.API/
+COPY FootballRanking.Core/ FootballRanking.Core/
+COPY FootballRanking.Infrastructure/ FootballRanking.Infrastructure/
+
+# Publish
+RUN dotnet publish FootballRanking.API/FootballRanking.API.csproj \
+    -c Release \
+    -o /app/publish \
+    --no-restore
+
+
+# =========================
+# Runtime stage
+# =========================
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
+
+WORKDIR /app
+
+COPY --from=build /app/publish .
+
+# Render will provide PORT.
+ENV ASPNETCORE_URLS=http://0.0.0.0:${PORT}
+
+ENTRYPOINT ["dotnet", "FootballRanking.API.dll"]
