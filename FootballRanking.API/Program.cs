@@ -120,17 +120,14 @@ public class Program
         app.UseMiddleware<ExceptionHandlingMiddleware>();
 
         // Configure HTTP request pipeline
-        if (app.Environment.IsDevelopment())
+        app.UseSwagger();
+        app.UseSwaggerUI(c =>
         {
-            app.UseSwagger();
-            app.UseSwaggerUI(c =>
-            {
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Football Ranking API v1");
-                c.RoutePrefix = "swagger";
-            });
-        }
+            c.SwaggerEndpoint("/swagger/v1/swagger.json", "Football Ranking API v1");
+            c.RoutePrefix = "swagger";
+        });
 
-        app.UseHttpsRedirection();
+        //app.UseHttpsRedirection();
         app.UseCors("AllowFrontend");
         app.UseAuthorization();
         app.MapControllers();
