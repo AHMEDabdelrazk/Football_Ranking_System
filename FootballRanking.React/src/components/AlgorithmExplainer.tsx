@@ -29,42 +29,39 @@ export const AlgorithmExplainer: React.FC = () => {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
           <div className="bg-slate-900/80 p-3 rounded-xl border border-slate-800">
-            <span className="font-bold text-rose-400 block mb-1">Strikers (ST)</span>
+            <span className="font-bold text-rose-400 block mb-1">Strikers (ST/CF)</span>
             <ul className="text-slate-400 space-y-1 text-[11px]">
               <li>• Attacking: <strong>75%</strong></li>
               <li>• Playmaking: <strong>15%</strong></li>
-              <li>• Discipline: <strong>8%</strong></li>
               <li>• Defending: <strong>2%</strong></li>
+              <li>• Discipline: <strong>8%</strong></li>
             </ul>
           </div>
 
           <div className="bg-slate-900/80 p-3 rounded-xl border border-slate-800">
             <span className="font-bold text-amber-400 block mb-1">Wingers / CAMs</span>
             <ul className="text-slate-400 space-y-1 text-[11px]">
-              <li>• Attacking: <strong>50%</strong></li>
-              <li>• Playmaking: <strong>35%</strong></li>
-              <li>• Defending: <strong>5%</strong></li>
-              <li>• Discipline: <strong>10%</strong></li>
+              <li>• Wingers (LW/RW): <strong>55% / 30% / 5% / 10%</strong></li>
+              <li>• Attacking Mid (CAM): <strong>45% / 40% / 5% / 10%</strong></li>
+              <li className="text-[10px] text-slate-500">(Att / Play / Def / Disc)</li>
             </ul>
           </div>
 
           <div className="bg-slate-900/80 p-3 rounded-xl border border-slate-800">
-            <span className="font-bold text-blue-400 block mb-1">Midfield / CDM</span>
+            <span className="font-bold text-blue-400 block mb-1">Midfield (CM / CDM)</span>
             <ul className="text-slate-400 space-y-1 text-[11px]">
-              <li>• Playmaking: <strong>45%</strong></li>
-              <li>• Defending: <strong>35%</strong></li>
-              <li>• Attacking: <strong>10%</strong></li>
-              <li>• Discipline: <strong>10%</strong></li>
+              <li>• Central Mid (CM): <strong>25% / 45% / 20% / 10%</strong></li>
+              <li>• Defensive Mid (CDM): <strong>15% / 35% / 40% / 10%</strong></li>
+              <li className="text-[10px] text-slate-500">(Att / Play / Def / Disc)</li>
             </ul>
           </div>
 
           <div className="bg-slate-900/80 p-3 rounded-xl border border-slate-800">
-            <span className="font-bold text-emerald-400 block mb-1">Defenders / GK</span>
+            <span className="font-bold text-emerald-400 block mb-1">Defenders & Goalkeepers</span>
             <ul className="text-slate-400 space-y-1 text-[11px]">
-              <li>• Defending: <strong>70%</strong></li>
-              <li>• Playmaking: <strong>15%</strong></li>
-              <li>• Attacking: <strong>5%</strong></li>
-              <li>• Discipline: <strong>10%</strong></li>
+              <li>• Center-Backs (CB): <strong>5% / 20% / 65% / 10%</strong></li>
+              <li>• Fullbacks (LB/RB): <strong>20% / 35% / 35% / 10%</strong></li>
+              <li>• Goalkeepers (GK): <strong>5% / 15% / 70% / 10%</strong></li>
             </ul>
           </div>
         </div>
@@ -74,7 +71,7 @@ export const AlgorithmExplainer: React.FC = () => {
       <div className="bg-[#121826] border border-slate-800 rounded-2xl p-6 shadow-xl">
         <div className="flex items-center space-x-2 text-cyan-400 mb-3">
           <Scale className="w-5 h-5" />
-          <h3 className="font-bold text-base text-white">2. Cross-League UEFA Normalization ($LCE$)</h3>
+          <h3 className="font-bold text-base text-white">2. Cross-League UEFA Normalization (LCE)</h3>
         </div>
         <p className="text-xs text-slate-400 mb-3 leading-relaxed">
           Scoring 20 goals in one league is not mathematically identical to scoring 20 goals in another due to defensive density and league competitiveness. The engine multiplies raw performance metrics by official UEFA league coefficient weights:
@@ -112,13 +109,21 @@ export const AlgorithmExplainer: React.FC = () => {
         </div>
         <div className="space-y-3 text-xs text-slate-400 leading-relaxed">
           <p>
-            <strong className="text-slate-200">Minutes Dampener ($MNA$):</strong> To prevent substitutes who score a single goal in 15 minutes from unnaturally topping the leaderboard, the engine applies a smooth square-root threshold function:
+            <strong className="text-slate-200">Minutes Dampener (MNA):</strong> To prevent substitutes who play limited minutes from artificially dominating rankings, the engine applies a calibrated square-root dampening function:
           </p>
-          <div className="p-3 bg-slate-900 rounded-xl font-mono text-emerald-300 text-[11px]">
-            Dampener = min(1.0, sqrt(MinutesPlayed / Threshold))
+          <div className="p-3 bg-slate-900 rounded-xl font-mono text-emerald-300 text-[11px] leading-relaxed">
+            <div>MNA = 1.0 (if Minutes ≥ Threshold)</div>
+            <div>MNA = 0.20 (if Minutes ≤ 0)</div>
+            <div>MNA = clamp(sqrt(Minutes / Threshold), 0.25, 1.0) (otherwise)</div>
           </div>
           <p>
-            <strong className="text-slate-200">Disciplinary Adjustment ($DP$):</strong> Yellow cards deduct 4 points, and red cards deduct 15 points from the discipline vector, reflecting reckless conduct that harms team probability.
+            <strong className="text-slate-200">Disciplinary Sub-Score (S_disc):</strong> Yellow cards deduct 4 points, and red cards deduct 15 points from a baseline score of 100, clamped to [20, 100]:
+          </p>
+          <div className="p-3 bg-slate-900 rounded-xl font-mono text-emerald-300 text-[11px]">
+            S_disc = clamp(100.0 - (YellowCards * 4.0 + RedCards * 15.0), 20.0, 100.0)
+          </div>
+          <p className="text-[11px] text-slate-400">
+            This sub-score is factored into the composite rating via the positional discipline weight (8% for Strikers, 10% for all other positions), rewarding consistent fair play without causing negative score distortions.
           </p>
         </div>
       </div>

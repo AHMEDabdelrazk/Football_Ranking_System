@@ -1,6 +1,47 @@
-@FootballRanking.API_HostAddress = http://localhost:5160
+@FootballRanking.API_HostAddress = https://localhost:7159
 
-GET {{FootballRanking.API_HostAddress}}/weatherforecast/
+### 1. Get Top Ranked Players Across Top 5 Leagues
+GET {{FootballRanking.API_HostAddress}}/api/rankings/players?page=1&pageSize=10
 Accept: application/json
 
-###
+### 2. Filter Ranked Players by Position (Strikers)
+GET {{FootballRanking.API_HostAddress}}/api/rankings/players?position=ST&page=1&pageSize=10
+Accept: application/json
+
+### 3. Filter Ranked Players by League (Premier League - PL)
+GET {{FootballRanking.API_HostAddress}}/api/rankings/players?competitionCode=PL
+Accept: application/json
+
+### 4. Get Player Ranking Deep-Dive Details
+GET {{FootballRanking.API_HostAddress}}/api/rankings/players/1
+Accept: application/json
+
+### 5. Simulate Rankings with Custom Algorithmic Weights
+POST {{FootballRanking.API_HostAddress}}/api/rankings/players/simulate
+Content-Type: application/json
+
+{
+  "weights": {
+    "attackingWeight": 2.0,
+    "playmakingWeight": 1.0,
+    "defendingWeight": 0.5,
+    "disciplineWeight": 1.0,
+    "minutesThreshold": 360,
+    "applyLeagueCoefficient": true
+  },
+  "filter": {
+    "pageSize": 10
+  }
+}
+
+### 6. Get European Club Power Rankings
+GET {{FootballRanking.API_HostAddress}}/api/rankings/clubs
+Accept: application/json
+
+### 7. Get Competitions
+GET {{FootballRanking.API_HostAddress}}/api/competitions
+Accept: application/json
+
+### 8. Get All Clubs
+GET {{FootballRanking.API_HostAddress}}/api/clubs
+Accept: application/json

@@ -32,11 +32,7 @@ public class Program
         {
             options.AddPolicy("AllowFrontend", policy =>
             {
-                policy.WithOrigins(
-                    "http://localhost:5173", 
-                    "http://localhost:3000", 
-                    "http://127.0.0.1:5173", 
-                    "http://127.0.0.1:3000")
+                policy.SetIsOriginAllowed(origin => true)
                       .AllowAnyHeader()
                       .AllowAnyMethod()
                       .AllowCredentials();
@@ -91,23 +87,25 @@ public class Program
             try
             {
                 var context = services.GetRequiredService<FootballDbContext>();
+                var dataProvider = services.GetRequiredService<IFootballDataProvider>();
                 if (!useInMemory && context.Database.IsRelational())
                 {
                     await context.Database.MigrateAsync();
                 }
-                await DatabaseSeeder.SeedAsync(context);
-                logger.LogInformation("Database seeded successfully with Top 5 leagues, clubs, and player stats.");
+                await DatabaseSeeder.SeedAsync(context, dataProvider);
+                logger.LogInformation("Database seeded successfully with Top 5 leagues, clubs, and player stats via {Provider}.", dataProvider.ProviderName);
             }
             catch (Exception ex)
             {
                 logger.LogWarning(ex, "Relational DB migration skipped or failed. Falling back to in-memory seeding.");
                 try
                 {
+                    var dataProvider = services.GetRequiredService<IFootballDataProvider>();
                     var inMemoryOptions = new DbContextOptionsBuilder<FootballDbContext>()
                         .UseInMemoryDatabase("FootballRankingDb_Fallback")
                         .Options;
                     using var fallbackContext = new FootballDbContext(inMemoryOptions);
-                    await DatabaseSeeder.SeedAsync(fallbackContext);
+                    await DatabaseSeeder.SeedAsync(fallbackContext, dataProvider);
                 }
                 catch (Exception seedEx)
                 {

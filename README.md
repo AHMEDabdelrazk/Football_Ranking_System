@@ -6,6 +6,14 @@ Built using **.NET 8 Clean Architecture**, **Entity Framework Core**, **xUnit Te
 
 ---
 
+## 🌐 Live Deployments
+
+- **Backend API (Render)**: [https://football-ranking-system.onrender.com](https://football-ranking-system.onrender.com)
+  - **Swagger UI**: [https://football-ranking-system.onrender.com/swagger](https://football-ranking-system.onrender.com/swagger)
+- **Frontend Dashboard (Vercel)**: Ready to deploy from `FootballRanking.React` with zero configuration.
+
+---
+
 ## 🚀 Quick Start Guide
 
 ### 1. Run the Backend (.NET 8 Web API)
@@ -14,7 +22,7 @@ cd FootballRanking.API
 dotnet run
 ```
 - The API will start with Swagger documentation available at:
-  - `https://localhost:7198/swagger` or `http://localhost:5000/swagger`
+  - `https://localhost:7159/swagger` or `http://localhost:5160/swagger`
 - By default, it uses the high-performance **In-Memory database with Top 5 European league seed data**.
 - To use SQL Server or add a live API key, update `appsettings.json`.
 

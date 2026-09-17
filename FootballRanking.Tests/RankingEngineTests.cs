@@ -142,6 +142,36 @@ public class RankingEngineTests
     }
 
     [Fact]
+    public void CalculatePlayerRanking_ZeroMinutesPlayed_ShouldApplyMinimumDampenerFloorAndAvoidDivisionByZero()
+    {
+        // Arrange
+        var player = new Player
+        {
+            PlayerId = 101,
+            FullName = "Unplayed Reserve",
+            Position = Position.CM,
+            Club = _manCity
+        };
+        var zeroMinPerf = new Performance
+        {
+            Matches = 0,
+            MinutesPlayed = 0,
+            Goals = 0,
+            Assists = 0,
+            Rating = 6.0m
+        };
+
+        // Act
+        var result = _engine.CalculatePlayerRanking(player, zeroMinPerf, _premierLeague);
+
+        // Assert
+        result.MinutesDampener.Should().Be(0.20m, "Zero minutes played should trigger the 0.20m base floor dampener");
+        result.GoalsPer90.Should().Be(0m);
+        result.AssistsPer90.Should().Be(0m);
+        result.OverallScore.Should().BeGreaterThan(0m);
+    }
+
+    [Fact]
     public void CalculatePlayerRanking_LeagueCoefficient_ShouldScaleRankingBetweenLeagues()
     {
         // Arrange

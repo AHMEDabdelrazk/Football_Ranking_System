@@ -37,4 +37,19 @@ public class CompetitionsController : ControllerBase
         var standings = await _competitionService.GetLeagueStandingsAsync(code);
         return Ok(standings);
     }
+
+    [HttpPost("sync")]
+    public async Task<IActionResult> SyncLiveCompetitions([FromServices] IFootballDataProvider dataProvider)
+    {
+        var competitions = await dataProvider.FetchCompetitionsAsync();
+        return Ok(new
+        {
+            provider = dataProvider.ProviderName,
+            isLive = dataProvider.IsLiveApiConfigured,
+            competitionsCount = competitions.Count(),
+            message = dataProvider.IsLiveApiConfigured 
+                ? "Live data successfully synchronized from external sports API." 
+                : "Simulated fallback provider utilized (no API key configured)."
+        });
+    }
 }
